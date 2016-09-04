@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
+import { Observable } from 'rxjs';
+import { Subject } from 'rxjs';
 
 declare var Socket;
 
@@ -12,15 +14,73 @@ declare var Socket;
 */
 @Injectable()
 export class OwnCommand {
-  socket: any;
+  private socket: any;
+  private host: string;
+  private port: number;
+  private dataObservable: Subject<string>;
 
-  constructor() {
+  constructor() {}
 
+  init(host: string, port): Subject<string> {
+    this.host = host;
+    this.port = port;
+
+    this.dataObservable = Subject.create();
+
+    return this.dataObservable;
+  }
+
+  open(): Observable<string> {
+    let statusObservable = Observable.create((observer) => {
+      if (this.socket == null) {
+        this.createSocket();
+      }
+
+      if (this.socket.state == Socket.State.CLOSED) {
+        this.socket.open(
+          this.host,
+          this.port,
+          () => {
+            observer.next("open");
+          },
+          (error) => {
+            observer.error("failed to open connection");
+          }
+        )
+      } else {
+        observer.next("open");
+      }
+    })
+
+    return statusObservable;
+  }
+
+  createSocket() {
+    this.socket = new Socket();
+    this.socket.onData = (data) => {
+      let stringData = this.arrayToString(data);
+      console.log(stringData);
+      this.dataObservable.next(stringData);
+    }
+    this.socket.onError = (error) => {
+      console.log(error);
+      this.dataObservable.error(error);
+    }
+    this.socket.onClose = (hasError) => {
+      console.log("socket closed " + (hasError ? "with" : "without") + " error");
+    }
   }
 
   send(command: string) {
-    debugger;
-
+    this.open().subscribe({
+      next: (status) => {
+        let bytes = this.stringToArray(command);
+        this.socket.write(bytes);
+      }
+    })
+  }
+/*
+  send(command: string) {
     this.socket = new Socket();
     this.socket.onData = (data) => {
       console.log(this.arrayToString(data));
@@ -43,7 +103,7 @@ export class OwnCommand {
       }
     )
   }
-
+*/
   socketOpen() {
     console.log("Socket open");
 
