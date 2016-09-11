@@ -10,23 +10,49 @@
 
 <ion-content padding class="getting-started">
 
-  <h3>Welcome to your first Ionic app!</h3>
+  <h3>OWN Tester</h3>
 
-  <p>
-    This starter project is our way of helping you get a functional app running in record time.
-  </p>
-  <p>
-    Follow along on the tutorial section of the Ionic docs!
-  </p>
   <p>
     <button primary menuToggle>Toggle Menu</button>
   </p>
+  <p>
+    <ion-list>
+      <ion-item>
+        <button (click)="monitor()">Monitor</button>
+      </ion-item>
+      <ion-item>
+        <button (click)="status(null, 1)">Status Lights</button>
+      </ion-item>
+      <ion-item>
+        <button (click)="status(null, 2)">Status Shutters</button>
+      </ion-item>
+    </ion-list>
+  </p>
+  <ion-icon name="star"></ion-icon>
+  <ion-list>
+    <ion-item>
+      <ion-icon name="star" (click)="status(11,1)"></ion-icon>
+    </ion-item>
+    <ion-item>
+      <ion-icon name="information" (click)="status(32,1)"></ion-icon>
+    </ion-item>
+  </ion-list>
 
   <p>
     <ion-list>
       <ion-item>
-        <ion-label fixed>Component id</ion-label>
-        <ion-input type="number" value="31" [(ngModel)]="componentId"></ion-input>
+        <ion-label fixed>Trap Wand</ion-label>
+        <ion-toggle checked="false" #toggle11 (click)="send(11, toggle11.checked)"></ion-toggle>
+        <button item-right clear (click)="status(32,1)">
+          <ion-icon name="information-circle"></ion-icon>
+        </button>
+      </ion-item>
+      <ion-item>
+        <ion-label fixed>Bureau Kast</ion-label>
+        <ion-toggle checked="false" #toggle32 (click)="send(32, toggle32.checked)"></ion-toggle>
+        <button item-right clear (click)="status(10,1)">
+          <ion-icon name="information-circle"></ion-icon>
+        </button>
       </ion-item>
     </ion-list>
     <button (click)="send()">Send</button>

@@ -1,27 +1,42 @@
 import {Component} from '@angular/core';
-import {OwnCommand} from '../../providers/own-command/own-command'
+import {OwnCommand} from '../../providers/own-command/own-command';
+import {OwnMonitor} from '../../providers/own-monitor/own-monitor';
 import {Observable} from 'rxjs/Observable';
 
 @Component({
   templateUrl: 'build/pages/hello-ionic/hello-ionic.html',
-  providers: [OwnCommand]
+  providers: [OwnCommand,OwnMonitor]
 })
 export class HelloIonicPage {
-  componentId: number = 31;
+  componentId: number = 32;
+  onoff: boolean = false;
 
-  constructor(private ownCommand: OwnCommand) {
-
+  constructor(private ownCommand: OwnCommand, private ownMonitor: OwnMonitor) {
+    this.ownCommand.init("192.168.0.103",20000);
+    this.ownMonitor.init("192.168.0.103",20000);
   }
 
-  send() {
-    this.ownCommand.init("192.168.0.103",20000).subscribe((data) => {
-      this.processFeedback(data);
-    });
-
-    this.ownCommand.send("*1*1*" + this.componentId + "##");
+  status(component, type) {
+      this.ownCommand
+        .send("*#" + type + (component ? "*" + component : "") + "##")
+        .subscribe((data) => {
+          console.log("Hello Page Status" + JSON.stringify(data));
+        });
   }
 
-  processFeedback(data: string) {
-    console.log("Hello Page " + data);
+  send(component, status) {
+    this.ownCommand
+      .send("*1*" + (status ? 1 : 0) + "*" + component + "##")
+      .subscribe((data) => {
+        console.log("Hello Page Command" + JSON.stringify(data));
+      });
+  }
+
+  monitor() {
+    this.ownMonitor
+      .listen()
+      .subscribe((data) => {
+        console.log("Hello Page Monitor " + JSON.stringify(data));
+      })
   }
 }
