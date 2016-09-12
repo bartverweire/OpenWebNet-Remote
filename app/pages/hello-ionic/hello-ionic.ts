@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {OwnCommand} from '../../providers/own-command/own-command';
+import {OwnCommand} from '../../providers/own-command/own-command-mock';
 import {OwnMonitor} from '../../providers/own-monitor/own-monitor';
 import {Observable} from 'rxjs/Observable';
 
@@ -13,7 +13,7 @@ export class HelloIonicPage {
 
   constructor(private ownCommand: OwnCommand, private ownMonitor: OwnMonitor) {
     this.ownCommand.init("192.168.0.103",20000);
-    this.ownMonitor.init("192.168.0.103",20000);
+    //this.ownMonitor.init("192.168.0.103",20000);
   }
 
   status(component, type) {
