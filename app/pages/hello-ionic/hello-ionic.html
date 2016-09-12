@@ -12,6 +12,28 @@
 
   <h3>OWN Tester</h3>
 
+
+  <p>
+    <ion-list>
+      <ion-item>
+        <ion-label fixed>Trap Wand</ion-label>
+        <ion-toggle checked="false" #toggle11 (click)="send(11, toggle11.checked)"></ion-toggle>
+        <button item-right clear (click)="status(32,1)">
+          <ion-icon name="information-circle"></ion-icon>
+        </button>
+      </ion-item>
+      <ion-item>
+        <ion-label fixed>Bureau Kast</ion-label>
+        <ion-toggle checked="false" #toggle32 (click)="send(32, toggle32.checked)"></ion-toggle>
+        <button item-right clear (click)="status(10,1)">
+          <ion-icon name="information-circle"></ion-icon>
+        </button>
+      </ion-item>
+    </ion-list>
+    <button (click)="send()">Send</button>
+    <button (click)="getCommands()">Get Commands</button>
+  </p>
+
   <p>
     <button primary menuToggle>Toggle Menu</button>
   </p>
@@ -37,25 +59,5 @@
       <ion-icon name="information" (click)="status(32,1)"></ion-icon>
     </ion-item>
   </ion-list>
-
-  <p>
-    <ion-list>
-      <ion-item>
-        <ion-label fixed>Trap Wand</ion-label>
-        <ion-toggle checked="false" #toggle11 (click)="send(11, toggle11.checked)"></ion-toggle>
-        <button item-right clear (click)="status(32,1)">
-          <ion-icon name="information-circle"></ion-icon>
-        </button>
-      </ion-item>
-      <ion-item>
-        <ion-label fixed>Bureau Kast</ion-label>
-        <ion-toggle checked="false" #toggle32 (click)="send(32, toggle32.checked)"></ion-toggle>
-        <button item-right clear (click)="status(10,1)">
-          <ion-icon name="information-circle"></ion-icon>
-        </button>
-      </ion-item>
-    </ion-list>
-    <button (click)="send()">Send</button>
-  </p>
 
 </ion-content>

@@ -19,8 +19,11 @@ export class OwnCommand {
   private handshake: string[] = ["*99*0##"];
 
   private responseStream: Subject<string>;
+  private commandStream: Subject<string>;
 
-  constructor() {}
+  constructor() {
+
+  }
 
   init(host: string, port: number): Observable<string> {
     // create a new socket
@@ -32,83 +35,84 @@ export class OwnCommand {
 
     console.log("Socket created");
 
+    this.commandStream  = new Subject<string>();
     this.responseStream = new Subject<string>();
+
+    this.responseStream.subscribe((response) => {
+      console.log("ResponseStream - received response " + response);
+
+      console.log("Waiting for command");
+    });
+    this.commandStream.subscribe((command) => {
+      console.log("CommandStream - received command " + command);
+    });
+
+    Observable.zip(
+      this.responseStream,
+      this.commandStream,
+      (response, command) => {
+        console.log("Zipped - response " + response + ", next command " + command);
+        return command;
+      }
+    )
+    .forEach((command) => {
+      this.write(command);
+    });
+
+    // create a close message every 30 seconds
     Observable.interval(30000)
     .subscribe(() => {
-      this.state = "closed";
+      if (this.state === "open") {
+        this.state = "closed";
+        this.responseStream.next("close");
+      }
     });
     console.log("Observables created");
 
     return this.responseStream;
   }
 
-  send(command: string): Observable<any> {
-    let commandStream = this.buildCommandStream(command)
-                          .map((command) => {
-                            console.log("Writing command " + command.commandString + "(" + command.type + ")");
-                            this.write(command.commandString);
+  send(command: string): void {
+    console.log("Command received ");
+    this.open();
 
-                            return command;
-                          })
-                          .delay(200);
+    console.log("Send method - adding " + command + " to commandStream");
 
-    return this.open()
-      .concatMap(() => {
-        console.log("Socket opened, continuing with commands");
-        this.state = "open";
-
-        // start with command stream, but don't send yet
-        return  commandStream
-                  .concatMap((command) => {
-                    return this.responseStream.startWith("open")
-                      .map((response) => {
-                        return {
-                          type: command.type,
-                          commandString: command.commandString,
-                          response: response
-                        }
-                      })
-                  })
-                  .filter((responseObj: any) => {
-                    return true;//responseObj.type !== "handshake";
-                  });
-      });
+    this.commandStream.next(command);
   }
 
   write(commandString: string) {
+    console.log("Write method - writing " + commandString);
+
     Observable.interval(1000)
       .map(() => {
-        this.responseStream.next("Response for " + commandString);
+        let message = "Response for " + commandString
+        console.log("Write method - adding a fake response to the queue: " + message);
+        this.responseStream.next(message);
 
         return "Command written";
       })
       .take(1)
-      .forEach((message) => console.log(message));
-
+      .forEach((message) => console.log("Write method - message (" + message + ") consumed"));
   }
 
-  buildCommandStream(command: string): Observable<any>{
-    let commandObservable = Observable.from([{
-      type: "command",
-      commandString: command
-    }]);
+  getCommands() {
+    return this.commandStream;
+  }
+
+  open(): void {
+    console.log("Open method");
 
     if (this.state === "closed") {
-      return Observable.from(this.handshake)
-        .map((handshake: string) => ({
-          type: "handshake",
-          commandString: handshake
-        }))
-        .concat(commandObservable);
-    } else {
-      return commandObservable;
+      console.log("Connection closed - adding handshake commands");
+      this.handshake.forEach((command) => {
+        console.log("Open observable - adding handshake command " + command + " to commandStream");
+        this.commandStream.next(command);
+      });
     }
-  }
 
-  open(): Observable<any> {
-    return Observable.create((observer) => {
-      observer.next("open");
-    })
+    //this.state = "open";
+    this.responseStream.next("Response to open");
   }
 
   arrayToString(data: Uint8Array) {
