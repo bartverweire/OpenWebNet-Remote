@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {OwnCommand} from '../../providers/own-command/own-command-mock';
+import {OwnCommand} from '../../providers/own-command/own-command';
 import {OwnMonitor} from '../../providers/own-monitor/own-monitor';
 import {Observable} from 'rxjs';
 import {Subject} from 'rxjs';
@@ -14,7 +14,11 @@ export class HelloIonicPage {
 
   constructor(private ownCommand: OwnCommand, private ownMonitor: OwnMonitor) {
     this.ownCommand.init("192.168.0.103",20000)
-      .subscribe((response) => this.processResponse(response));
+      .subscribe(
+        (response) => console.log("*** Hello Page " + JSON.stringify(response)),
+        (error) => console.error("*** Hello Page " + JSON.stringify(error)),
+        () => console.info("*** Hello Page - completed" )
+      );
     //this.ownMonitor.init("192.168.0.103",20000);
   }
 
@@ -29,12 +33,10 @@ export class HelloIonicPage {
   }
 
   processResponse(response: string) {
-    //console.log("Hello Page Monitor " + JSON.stringify(response));
+    console.log("Hello Page Monitor " + JSON.stringify(response));
   }
 
-  getCommands() {
-    this.ownCommand.getCommands().forEach((command) => {
-      console.log("GetCommand: " + command);
-    })
+  select() {
+
   }
 }
