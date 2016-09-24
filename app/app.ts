@@ -1,9 +1,12 @@
-import {Component, ViewChild} from '@angular/core';
-import {ionicBootstrap, Platform, MenuController, Nav} from 'ionic-angular';
-import {StatusBar} from 'ionic-native';
-import {HelloIonicPage} from './pages/hello-ionic/hello-ionic';
-import {ListPage} from './pages/list/list';
+import { Component, ViewChild } from '@angular/core';
+import { ionicBootstrap, Platform, MenuController, Nav } from 'ionic-angular';
+import { StatusBar } from 'ionic-native';
 import { MainPage } from './pages/main/main'
+import { LightsPage } from './pages/lights/lights';
+import { ShuttersPage } from './pages/shutters/shutters';
+import { GroupsPage } from './pages/groups/groups';
+import { SettingsPage } from './pages/settings/settings';
+import { DataProvider } from './providers/data-provider/data-provider';
 
 @Component({
   templateUrl: 'build/app.html'
@@ -23,8 +26,10 @@ class MyApp {
 
     // set our app's pages
     this.pages = [
-      { title: 'Hello Ionic', component: HelloIonicPage },
-      { title: 'My First List', component: ListPage }
+      { title: 'Lights', component: LightsPage },
+      { title: 'Shutters', component: ShuttersPage },
+      { title: 'Groups', component: GroupsPage },
+      { title: 'Settings', component: SettingsPage }
     ];
   }
 
@@ -44,4 +49,6 @@ class MyApp {
   }
 }
 
-ionicBootstrap(MyApp);
+ionicBootstrap(MyApp,
+  [DataProvider]
+);

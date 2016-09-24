@@ -1,0 +1,25 @@
+<!--
+  Generated template for the ShutterActionList component.
+
+  See https://angular.io/docs/ts/latest/api/core/ComponentMetadata-class.html
+  for more info on Angular 2 Components.
+-->
+<ion-item-group>
+  <ion-item-divider>
+    <span item-left>Shutters</span>
+    <span item-right>
+      <ion-icon name="arrow-down" (click)="action(2)"></ion-icon>
+    </span>
+    <span item-right>
+      <ion-icon name="close" (click)="action(0)"></ion-icon>
+    </span>
+    <span item-right>
+      <ion-icon name="arrow-up" (click)="action(1)"></ion-icon>
+    </span>
+    <span (click)="createShutter()"  item-right>
+      <ion-icon name="add-circle" right end></ion-icon>
+    </span>
+  </ion-item-divider>
+  <shutter-action-list-item *ngFor="let shutter of (shutters | async)?.components" [shutter]="shutter">
+  </shutter-action-list-item>
+</ion-item-group>

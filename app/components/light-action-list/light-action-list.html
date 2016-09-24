@@ -1,0 +1,17 @@
+<!--
+  Generated template for the LightActionList component.
+
+  See https://angular.io/docs/ts/latest/api/core/ComponentMetadata-class.html
+  for more info on Angular 2 Components.
+-->
+<ion-item-group>
+  <ion-item-divider>
+    <span item-left>Lights</span>
+    <ion-toggle [(ngModel)]="status" (ionChange)="action()" item-right></ion-toggle>
+    <span (click)="createLight()"  item-right>
+      <ion-icon name="add-circle" right end></ion-icon>
+    </span>
+  </ion-item-divider>
+  <light-action-list-item *ngFor="let light of (lights | async)?.components" [light]="light">
+  </light-action-list-item>
+</ion-item-group>

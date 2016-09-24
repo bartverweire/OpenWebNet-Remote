@@ -17,12 +17,24 @@ export class Group<T extends OwnComponent> {
   }
 
   add(component: T) {
-    this.components.push(component);
+    var index = this.components.map(x => x.id).indexOf(component.id, 0);
+    /*
+    if (index >= 0) {
+      this.components[index] = component;
+    } else {
+      this.components.push(component);
+    }
+    */
+    if (index < 0) {
+      this.components.push(component);
+    }
   }
 
   remove(component: T) {
     var index = this.components.map(x => x.id).indexOf(component.id, 0);
-    this.components.splice(index, 0);
+    if (index >= 0) {
+      this.components.splice(index, 0);
+    }
   }
 
   set(components: T[]) {
@@ -44,6 +56,17 @@ export class Group<T extends OwnComponent> {
     });
 
     return found;
+  }
+
+  getCommand(commandType: number): string {
+    let command = "";
+    return this.components
+      .map((component): string => {
+        return "" + component.id
+      })
+      .reduce((current: string, id: string): string => {
+        return current + "*" + this.type + "*" + (commandType) + "*" + id + "##";
+      }, "");
   }
 }
 

@@ -7,42 +7,47 @@
 <ion-header>
 
   <ion-navbar>
+    <button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
     <ion-title>Group</ion-title>
   </ion-navbar>
 
 </ion-header>
 
-
 <ion-content padding>
-  <ion-list>
-    <ion-item>
-      <ion-label>Type</ion-label>
-      <ion-select [(ngModel)]="type" [disabled]="existing">
-        <ion-option value="1">Lights</ion-option>
-        <ion-option value="2">Shutters</ion-option>
-      </ion-select>
-    </ion-item>
-    <ion-item>
-      <ion-label>Name</ion-label>
-      <ion-input type="text" [(ngModel)]="name"></ion-input>
-    </ion-item>
-  </ion-list>
+  <h3>Details</h3>
+  <form [formGroup]="groupForm" (submit)="saveGroup($event)">
+    <ion-list>
+      <ion-item>
+        <ion-label>Type</ion-label>
+        <ion-select [(ngModel)]="type" [disabled]="existing">
+          <ion-option value="1">Lights</ion-option>
+          <ion-option value="2">Shutters</ion-option>
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-label>Name</ion-label>
+        <ion-input type="text" [(ngModel)]="name"></ion-input>
+      </ion-item>
+    </ion-list>
 
-  <h2>Available {{ group.type == 1 ? "Lights" : "Shutters" }}</h2>
-  <ion-grid>
-    <ion-row *ngFor="let component of (candidates | async)" [ngSwitch]="component.type" detail-push>
-      <ion-col width-90>
-        <ion-item>
-          <ion-label>{{ component.name }}</ion-label>
-          <ion-checkbox dark [checked]="group.contains(component)" (ionChange)="toggleComponent($event, component)" item-left></ion-checkbox>
-        </ion-item>
-      </ion-col>
-      <ion-col width-10>
-        <span (click)="showComponent(component)">
-          <ion-icon name="information-circle"></ion-icon>
-        </span>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+    <h2>Available {{ group.type == 1 ? "Lights" : "Shutters" }}</h2>
+    <ion-grid>
+      <ion-row *ngFor="let component of (candidates | async)" [ngSwitch]="component.type" detail-push>
+        <ion-col width-90>
+          <ion-item>
+            <ion-label>{{ component.name }}</ion-label>
+            <ion-checkbox dark [checked]="group.contains(component)" (ionChange)="toggleComponent($event, component)" item-left></ion-checkbox>
+          </ion-item>
+        </ion-col>
+        <ion-col width-10>
+          <span (click)="showComponent(component)">
+            <ion-icon name="information-circle"></ion-icon>
+          </span>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
 
 </ion-content>

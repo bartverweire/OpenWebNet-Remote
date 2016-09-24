@@ -1,0 +1,14 @@
+<!--
+  Generated template for the GroupActionList component.
+
+  See https://angular.io/docs/ts/latest/api/core/ComponentMetadata-class.html
+  for more info on Angular 2 Components.
+-->
+<ion-item-group>
+  <ion-item-divider>
+    <span item-left>Groups</span>
+  </ion-item-divider>
+  
+  <group-action-list-item *ngFor="let group of (groups | async)" [group]="group">
+  </group-action-list-item>
+</ion-item-group>

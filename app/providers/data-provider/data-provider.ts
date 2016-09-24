@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import {Storage, SqlStorage} from 'ionic-angular';
 import 'rxjs/add/operator/map';
-import { Observable, Subject, BehaviorSubject } from 'rxjs';
-import { OwnComponent, Light, Shutter, Group, Model } from '../../models/model';
+import { Observable, Subject, ReplaySubject } from 'rxjs';
+import { OwnComponent, Light, Shutter, Group } from '../../models/model';
 
 /*
   Generated class for the DataProvider provider.
@@ -14,33 +14,50 @@ import { OwnComponent, Light, Shutter, Group, Model } from '../../models/model';
 @Injectable()
 export class DataProvider {
 
-  private storage:        Storage;
-  private groups:         Group<OwnComponent>[];
-  private lights:         Group<Light>;
-  private shutters:       Group<Shutter>;
-  private allComponents:  Map<number,OwnComponent>;
-  private allGroups:      Map<string, Group<OwnComponent>>;
+  private storage:                Storage;
+  private lights:                 Group<Light>;
+  private shutters:               Group<Shutter>;
+  private allComponents:          Map<number,OwnComponent>;
+  private allGroups:              Map<string, Group<OwnComponent>>;
+  private groups:                 Group<OwnComponent>[];
 
-  private lightsStream:   Subject<Group<Light>>;
-  private shuttersStream: Subject<Group<Shutter>>;
-  private groupsStream:    Subject<Group<OwnComponent>[]>;
-  private groupStream:    Subject<Group<OwnComponent>>;
+  private lightsStream:           Subject<Group<Light>>;
+  private shuttersStream:         Subject<Group<Shutter>>;
+  private groupsStream:           Subject<Group<OwnComponent>[]>;
+  private groupStream:            Subject<Group<OwnComponent>>;
+  private currentComponentStream: Subject<OwnComponent>;
 
   constructor(private http: Http) {
     this.storage = new Storage(SqlStorage, {name: 'myhome'});
 
     this.allComponents  = new Map<number,OwnComponent>();
     this.allGroups      = new Map<string, Group<OwnComponent>>();
+    this.groups         = [];
     this.lights         = new Group<Light>(Light.ComponentType, "Lights");
     this.shutters       = new Group<Shutter>(Shutter.ComponentType, "Shutters");
-    this.groups         = [];
 
-    this.lightsStream   = new Subject<Group<Light>>();
-    this.shuttersStream = new Subject<Group<Shutter>>();
-    this.groupsStream   = new Subject<Group<OwnComponent>[]>();
-    this.groupStream    = new Subject<Group<OwnComponent>>();
+    this.lightsStream   = new ReplaySubject<Group<Light>>(1);
+    this.shuttersStream = new ReplaySubject<Group<Shutter>>(1);
+    this.groupsStream   = new ReplaySubject<Group<OwnComponent>[]>(1);
+    this.groupStream    = new ReplaySubject<Group<OwnComponent>>(1);
 
+    this.lightsStream.subscribe(
+      (data) => {
+        console.log("New lightsStream event");
+        console.log(data);
+      },
+      (error) => {
+        console.error("Lightsstream error");
+      },
+      () => {
+        console.log("Lightsstream completed");
+      }
+    )
     this.loadData();
+  }
+
+  getComponent(id: number): OwnComponent {
+    return this.allComponents.get(id);
   }
 
   getLights(): Subject<Group<Light>> {
@@ -55,7 +72,17 @@ export class DataProvider {
     return <Subject<Group<OwnComponent>[]>> this.groupsStream
             .map((groups) => {
               if (!type) {
-                return groups;
+                return groups.sort((a,b) => {
+                  if (a.type != b.type) {
+                    return a.type - b.type;
+                  }
+
+                  if (a.name == b.name) {
+                    return 0;
+                  }
+
+                  return a.name < b.name ? -1 : 1;
+                });
               }
 
               return groups
@@ -101,6 +128,7 @@ export class DataProvider {
           this.allComponents.set(shutter.id, shutter);
         });
         // add groups to the global group map
+        this.groups = zipped.groups;
         zipped.groups.forEach((group) => {
           this.allGroups.set(group.name, group);
         });
@@ -121,6 +149,34 @@ export class DataProvider {
       });
   }
 
+  saveComponent(component: OwnComponent, groups: Group<OwnComponent>[]) {
+    this.allComponents.set(component.id, component);
+    switch (component.type) {
+      case Light.ComponentType : this.lights.add(<Light>component); break;;
+      case Shutter.ComponentType : this.shutters.add(<Shutter>component); break;;
+    }
+
+    if (groups) {
+      this.allGroups.forEach((currGroup, index) => {
+        let isParent = false;
+        groups.forEach((group) => {
+          if (group.name === currGroup.name) {
+            isParent = true;
+          }
+        })
+
+        if (isParent) {
+          currGroup.add(component);
+        } else {
+          currGroup.remove(component);
+        };
+      });
+    }
+
+    this.lightsStream.next(this.lights);
+    this.shuttersStream.next(this.shutters);
+    this.groupsStream.next(this.groups);
+  }
 
   loadLights() {
     return Observable.fromPromise(this.storage.get('lights'))

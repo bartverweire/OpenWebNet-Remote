@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NavController, NavParams } from 'ionic-angular';
 import { OwnComponent, Group, Light, Shutter } from '../../models/model';
-import { Subject } from 'rxjs';
+import { Subject, ReplaySubject } from 'rxjs';
 import { DataProvider } from '../../providers/data-provider/data-provider';
 
 /*
@@ -11,40 +12,62 @@ import { DataProvider } from '../../providers/data-provider/data-provider';
   Ionic pages and navigation.
 */
 @Component({
-  templateUrl: 'build/pages/group-detail/group-detail.html',
-  providers: [DataProvider]
+  templateUrl: 'build/pages/group-detail/group-detail.html'
 })
 export class GroupDetailPage {
   group: Group<OwnComponent>;
+  groupForm: FormGroup;
+  existing: boolean = true;
+
   name: string;
   type: number = 1;
-  existing: boolean = true;
+
+  selected: OwnComponent[];
   candidates: Subject<OwnComponent[]>;
 
-  constructor(private navCtrl: NavController, private navParams: NavParams, private dataProvider: DataProvider) {
+  formErrors = {
+    name: ''
+  }
+
+  validationMessages = {
+    'name': {
+      'required':      'Name is required.',
+      'minlength':     'Name must be at least 3 characters long.'
+    }
+  };
+
+  constructor(private navCtrl: NavController,
+              private navParams: NavParams,
+              private dataProvider: DataProvider,
+              private formBuilder: FormBuilder) {
     this.group = navParams.get('group');
     if (!this.group) {
       this.existing = false;
+      this.type = 1;
       this.group = new Group(this.type, this.name);
     } else {
       this.type = this.group.type;
+      this.name = this.group.name;
     }
 
-    this.candidates = this.getCandidates();
-    this.candidates.subscribe((data) => {
-      console.log("Candidates received");
-      console.log(data);
+    this.candidates = new ReplaySubject<OwnComponent[]>(1);
+    this.candidates.forEach((candidates) => {
+      console.log("Group details - Candidate array received");
+      candidates.forEach((candidate) => {
+        this.selected.push(candidate);
+      })
     });
+    this.getCandidates();
   }
 
   setType(type: number) {
     if (!this.existing) {
       this.type = type;
-      this.candidates = this.getCandidates();
+      this.getCandidates();
     }
   }
 
-  getCandidates(): Subject<OwnComponent[]> {
+  getCandidates() {
     let candidateGroup: Subject<Group<OwnComponent>>;
 
     switch(this.type) {
@@ -52,15 +75,9 @@ export class GroupDetailPage {
       case 2 : candidateGroup = <Subject<Group<OwnComponent>>><any> this.dataProvider.getShutters(); break;;
     }
 
-    return <Subject<OwnComponent[]>><any> candidateGroup
-            .map((group) => {
-              if (group) {
-                return group.components;
-              }
-
-              return [];
-            })
-            .take(1);
+    candidateGroup.take(1).forEach((group) => {
+      this.candidates.next(group.components);
+    });
   }
 
   toggleComponent(checkbox: any, component: OwnComponent) {

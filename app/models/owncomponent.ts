@@ -1,14 +1,16 @@
-import { Light, Shutter } from './models';
+import { Light, Shutter } from './model';
 
 export abstract class OwnComponent {
-  public status: number;
+  static objectIdGenerator: number = 0;
 
+  public status: number;
+  public objectId: number;
 
   constructor(public id: number, public name: string, public type: number) {
-
+    this.objectId = OwnComponent.objectIdGenerator++;
   }
 
-  static create(type: number) {
+  static create(type: number): OwnComponent {
     switch (type) {
       case Light.ComponentType: return new Light(0, "New Light", false);
       case Shutter.ComponentType: return new Shutter(0, "New Shutter");
@@ -26,5 +28,6 @@ export abstract class OwnComponent {
   }
 
   abstract getStatusCode(): string;
-
+  abstract copy(component: OwnComponent): void;
+  abstract getCommand(commandType: number): string;
 }

@@ -7,35 +7,49 @@
 <ion-header>
 
   <ion-navbar>
+    <button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
     <ion-title>Component Detail</ion-title>
   </ion-navbar>
 
 </ion-header>
 
 <ion-content padding>
-  <ion-list>
-    <ion-item>
-      <ion-label>Id</ion-label>
-      <ion-input type="number" [(ngModel)]="component.id" [disabled]="existing"></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label>Type</ion-label>
-      <ion-select [(ngModel)]="component.type" [disabled]="existing">
-        <ion-option value="1">Light</ion-option>
-        <ion-option value="2">Shutter</ion-option>
-      </ion-select>
-    </ion-item>
-    <ion-item>
-      <ion-label>Name</ion-label>
-      <ion-input type="text" [(ngModel)]="component.name"></ion-input>
-    </ion-item>
-    <ion-list-header>
-      Groups
-    </ion-list-header>
-    <ion-item *ngFor="let group of (groups | async)" [ngSwitch]="group.type" (click)="selectGroup(group)">
-      {{ group.name }}
-      <ion-icon name="bulb" *ngSwitchCase="1" item-left></ion-icon>
-      <ion-icon name="menu" *ngSwitchCase="2" item-left></ion-icon>
-    </ion-item>
-  </ion-list>
+  <h3>Details</h3>
+  <form [formGroup]="componentForm" (submit)="saveComponent($event)">
+    <ion-list>
+      <ion-item>
+        <ion-label>Id</ion-label>
+        <ion-input type="number" formControlName="id" ></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label>Type</ion-label>
+        <ion-select formControlName="type" [disabled]="existing">
+          <ion-option value="1">Light</ion-option>
+          <ion-option value="2">Shutter</ion-option>
+        </ion-select>
+      </ion-item>
+      <ion-item [class.error]="!name.valid && name.touched">
+        <ion-label>Name</ion-label>
+        <ion-input type="text" formControlName="name"></ion-input>
+      </ion-item>
+      <ion-item *ngIf="type === 1">
+        <ion-label>Dimmable</ion-label>
+        <ion-checkbox dark formControlName="dimmable" [checked]="dimmable" item-left></ion-checkbox>
+      </ion-item>
+    </ion-list>
+
+    <div *ngIf="formErrors.name" class="error-box">
+      {{ formErrors.name }}
+    </div>
+
+    <h3>Available Groups</h3>
+    <group-selection-list
+        [groups]="groups"
+        [component]="component"
+        [selected]="selected">
+    </group-selection-list>
+    <button type="submit">Save</button>
+  </form>
 </ion-content>

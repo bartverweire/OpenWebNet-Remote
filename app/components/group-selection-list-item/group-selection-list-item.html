@@ -1,0 +1,14 @@
+<!--
+  Generated template for the GroupSelectionListItem component.
+
+  See https://angular.io/docs/ts/latest/api/core/ComponentMetadata-class.html
+  for more info on Angular 2 Components.
+-->
+<ion-item>
+  <ion-label>{{ group.name }}</ion-label>
+  <ion-checkbox
+      [checked]="group.contains(component)"
+      (ionChange)="toggleGroup($event, group)"
+      item-left>
+  </ion-checkbox>
+</ion-item>

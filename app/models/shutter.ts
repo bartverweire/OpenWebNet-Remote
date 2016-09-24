@@ -10,4 +10,25 @@ export class Shutter extends OwnComponent {
   getStatusCode(): string {
     return this.status > 1 ? "on" : "off";
   }
+
+  copy(component: OwnComponent) {
+    this.id = component.id;
+    this.name = component.name;
+  }
+
+  up(): string {
+    return this.getCommand(1);
+  }
+
+  down(): string {
+    return this.getCommand(2);
+  }
+
+  stop(): string {
+    return this.getCommand(0);
+  }
+
+  getCommand(commandType: number): string {
+    return "*2*" + (commandType) + "*" + this.id + "##";
+  }
 }

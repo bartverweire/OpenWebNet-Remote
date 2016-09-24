@@ -1,0 +1,11 @@
+<!--
+  Generated template for the LightActionListItem component.
+
+  See https://angular.io/docs/ts/latest/api/core/ComponentMetadata-class.html
+  for more info on Angular 2 Components.
+-->
+<ion-item>
+  <ion-icon name="bulb" item-left></ion-icon>
+  <span (click)="select(light)" item-content>{{ light.name }}</span>
+  <ion-toggle [(ngModel)]="light.status" (click)="action()" item-right></ion-toggle>
+</ion-item>

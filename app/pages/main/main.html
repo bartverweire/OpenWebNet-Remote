@@ -7,6 +7,9 @@
 <ion-header>
 
   <ion-navbar>
+    <button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
     <ion-title>Main Page</ion-title>
     <ion-buttons end>
       <button (click)="selectGroup()">
@@ -17,34 +20,8 @@
 
 </ion-header>
 
-
 <ion-content padding>
-  <ion-list>
-    <ion-list-header>
-      Lights
-    </ion-list-header>
-    <ion-item *ngFor="let light of (lights | async)?.components" [ngSwitch]="light.type" (click)="selectComponent(light)">
-      {{ light.name }}
-      <ion-icon name="bulb" *ngSwitchCase="1" item-left></ion-icon>
-      <ion-icon name="menu" *ngSwitchCase="2" item-left></ion-icon>
-    </ion-item>
-    <ion-list-header>
-      Shutters
-    </ion-list-header>
-    <ion-item *ngFor="let shutter of (shutters | async)?.components" [ngSwitch]="shutter.type" (click)="selectComponent(shutter)">
-      {{ shutter.name }}
-      <ion-icon name="bulb" *ngSwitchCase="1" item-left></ion-icon>
-      <ion-icon name="menu" *ngSwitchCase="2" item-left></ion-icon>
-    </ion-item>
-  </ion-list>
-  <ion-list>
-    <ion-list-header>
-      Groups
-    </ion-list-header>
-    <ion-item *ngFor="let group of (groups | async)" [ngSwitch]="group.type" (click)="selectGroup(group)">
-      {{ group.name }}
-      <ion-icon name="bulb" *ngSwitchCase="1" item-left></ion-icon>
-      <ion-icon name="menu" *ngSwitchCase="2" item-left></ion-icon>
-    </ion-item>
-  </ion-list>
+  <light-action-list [lights]="lights"></light-action-list>
+  <shutter-action-list [shutters]="shutters"></shutter-action-list>
+  <group-action-list [groups]="groups"></group-action-list>
 </ion-content>

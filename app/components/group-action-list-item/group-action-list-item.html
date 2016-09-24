@@ -1,0 +1,24 @@
+<!--
+  Generated template for the GroupActionListItem component.
+
+  See https://angular.io/docs/ts/latest/api/core/ComponentMetadata-class.html
+  for more info on Angular 2 Components.
+-->
+<ion-item *ngIf="group.type === 1">
+  <ion-icon name="bulb" item-left></ion-icon>
+  <span (click)="select(group)" item-content>{{ group.name }}</span>
+  <ion-toggle [(ngModel)]="toggleStatus" (click)="action()" item-right></ion-toggle>
+</ion-item>
+<ion-item *ngIf="group.type === 2">
+  <ion-icon name="menu" item-left></ion-icon>
+  <span (click)="select(group)" item-inner>{{ group.name }}</span>
+  <span item-right>
+    <ion-icon name="arrow-down" (click)="action(2)"></ion-icon>
+  </span>
+  <span item-right>
+    <ion-icon name="close" (click)="action(0)"></ion-icon>
+  </span>
+  <span item-right>
+    <ion-icon name="arrow-up" (click)="action(1)"></ion-icon>
+  </span>
+</ion-item>
