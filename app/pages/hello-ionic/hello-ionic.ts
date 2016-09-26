@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
-import {OwnCommand} from '../../providers/own-command/own-command';
-import {OwnMonitor} from '../../providers/own-monitor/own-monitor';
+import {OwnCommand} from '../../providers/own/own-command';
+import {OwnMonitor} from '../../providers/own/own-monitor';
 import {Observable} from 'rxjs';
 import {Subject} from 'rxjs';
 

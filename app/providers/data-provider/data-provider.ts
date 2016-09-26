@@ -68,21 +68,25 @@ export class DataProvider {
     return this.shuttersStream;
   }
 
-  getGroups(type?: number): Subject<Group<OwnComponent>[]> {
+  getGroups(type?: number, includeDefaultGroups? : boolean): Subject<Group<OwnComponent>[]> {
     return <Subject<Group<OwnComponent>[]>> this.groupsStream
             .map((groups) => {
               if (!type) {
-                return groups.sort((a,b) => {
-                  if (a.type != b.type) {
-                    return a.type - b.type;
-                  }
+                return groups
+                  .filter((group) => {
+                    return includeDefaultGroups || !group.defaultGroup;
+                  })
+                  .sort((a,b) => {
+                    if (a.type != b.type) {
+                      return a.type - b.type;
+                    }
 
-                  if (a.name == b.name) {
-                    return 0;
-                  }
+                    if (a.name == b.name) {
+                      return 0;
+                    }
 
-                  return a.name < b.name ? -1 : 1;
-                });
+                    return a.name < b.name ? -1 : 1;
+                  });
               }
 
               return groups
@@ -92,16 +96,8 @@ export class DataProvider {
             });
   }
 
-  getGroup(name: string): Subject<Group<OwnComponent>> {
-    this.groupsStream.forEach((groups) => {
-      groups.forEach((group) => {
-        if (group.name === name) {
-          this.groupStream.next(group);
-        }
-      });
-    });
-
-    return this.groupStream;
+  getGroup(name: string): Group<OwnComponent> {
+    return this.allGroups.get(name);
   }
 
   loadData() {
@@ -178,6 +174,18 @@ export class DataProvider {
     this.groupsStream.next(this.groups);
   }
 
+  saveGroup(group: Group<OwnComponent>) {
+    let index = this.groups.map((group) => group.name).indexOf(group.name);
+    if (index < 0) {
+      this.groups.push(group);
+      this.allGroups.set(group.name, group);
+    }
+
+    this.lightsStream.next(this.lights);
+    this.shuttersStream.next(this.shutters);
+    this.groupsStream.next(this.groups);
+  }
+
   loadLights() {
     return Observable.fromPromise(this.storage.get('lights'))
     .map((data) => {
@@ -229,15 +237,18 @@ export class DataProvider {
         data = [
           {
             name: "Lights",
-            type: 1
+            type: 1,
+            defaultGroup: true
           },
           {
             name: "Shutters",
-            type: 2
+            type: 2,
+            defaultGroup: true
           },
           {
             name: "Bureau",
-            type: 1
+            type: 1,
+            defaultGroup: false
           }
         ]
       }
@@ -296,8 +307,8 @@ export class DataProvider {
     groupsJson.forEach((groupJson) => {
       let group: Group<OwnComponent>;
       switch (groupJson.type) {
-        case 1 : group = new Group<Light>(groupJson.type, groupJson.name); break;;
-        case 2 : group = new Group<Shutter>(groupJson.type, groupJson.name); break;;
+        case 1 : group = new Group<Light>(groupJson.type, groupJson.name, groupJson.defaultGroup); break;;
+        case 2 : group = new Group<Shutter>(groupJson.type, groupJson.name, groupJson.defaultGroup); break;;
       }
 
       groups.push(group);

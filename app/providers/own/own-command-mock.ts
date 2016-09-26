@@ -22,19 +22,6 @@ export class OwnCommand {
   private commandStream: Subject<string>;
 
   constructor() {
-
-  }
-
-  init(host: string, port: number): Observable<string> {
-    // create a new socket
-    console.log("Creating socket");
-
-    this.host       = host;
-    this.port       = port;
-    this.state      = "closed";
-
-    console.log("Socket created");
-
     this.commandStream  = new Subject<string>();
     this.responseStream = new Subject<string>();
 
@@ -68,13 +55,34 @@ export class OwnCommand {
       }
     });
     console.log("Observables created");
+  }
+
+  init(host: string, port: number): Observable<string> {
+    // create a new socket
+    console.log("Creating socket");
+
+    this.host       = host;
+    this.port       = port;
+    this.state      = "closed";
+
+    console.log("Socket created");
 
     return this.responseStream;
   }
 
   send(command: string): void {
     console.log("Command received ");
-    this.open();
+
+    if (this.state === "closed") {
+      console.log("Connection closed - adding handshake commands");
+      this.handshake.forEach((command) => {
+        console.log("Open observable - adding handshake command " + command + " to commandStream");
+        this.commandStream.next(command);
+      });
+
+      this.state = "open";
+      this.responseStream.next("Response to open");
+    }
 
     console.log("Send method - adding " + command + " to commandStream");
 
@@ -98,21 +106,6 @@ export class OwnCommand {
 
   getCommands() {
     return this.commandStream;
-  }
-
-  open(): void {
-    console.log("Open method");
-
-    if (this.state === "closed") {
-      console.log("Connection closed - adding handshake commands");
-      this.handshake.forEach((command) => {
-        console.log("Open observable - adding handshake command " + command + " to commandStream");
-        this.commandStream.next(command);
-      });
-    }
-
-    //this.state = "open";
-    this.responseStream.next("Response to open");
   }
 
   arrayToString(data: Uint8Array) {

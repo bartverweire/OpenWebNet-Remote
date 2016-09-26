@@ -1,7 +1,6 @@
-import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
-import { Shutter } from '../../models/model';
-import { ComponentDetailPage } from '../../pages/component-detail/component-detail';
+import { Component, OnInit } from '@angular/core';
+import { OwnComponent, Group, Light, Shutter } from '../../models/model';
+
 /*
   Generated class for the ShutterSelectionListItem component.
 
@@ -11,23 +10,37 @@ import { ComponentDetailPage } from '../../pages/component-detail/component-deta
 @Component({
   selector: 'shutter-selection-list-item',
   templateUrl: 'build/components/shutter-selection-list-item/shutter-selection-list-item.html',
-  inputs: ["shutter"]
+  inputs: ["group","component","selected"]
 })
 export class ShutterSelectionListItem {
-  shutter: Shutter;
+  group: Group<OwnComponent>
+  component: OwnComponent;
+  selected: OwnComponent[];
 
-  constructor(private navCtrl: NavController, private navParams: NavParams) {
-    console.log("Shutter action list item constructor");
+  constructor() {
   }
 
-  select() {
-    console.log("Selected shutter " + JSON.stringify(this.shutter));
-    this.navCtrl.push(ComponentDetailPage, {
-      'component': this.shutter
-    })
+  ngOnInit() {
+    console.log("ShutterSelectionListItem initialized");
+    console.log(this.selected);
   }
 
-  action(commandType: number) {
-    console.log("Shutter action " + this.shutter.getCommand(commandType));
+  toggleComponent(checkbox: any, selectedComponent: OwnComponent) {
+    let index = this.selected
+                  .map((component) => component.id)
+                  .indexOf(selectedComponent.id);
+
+    if (checkbox.checked) {
+      if (index < 0) {
+        this.selected.push(selectedComponent);
+      }
+    } else {
+      if (index >= 0) {
+        this.selected.splice(index, 1);
+      }
+    }
+
+    console.log("Selection after toggle");
+    console.log(this.selected.map((component) => component.name));
   }
 }

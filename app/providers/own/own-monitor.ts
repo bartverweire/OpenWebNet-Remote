@@ -13,7 +13,8 @@ declare var Socket;
   for more info on providers and Angular 2 DI.
 */
 @Injectable()
-export class OwnMonitor {  private socket: any;
+export class OwnMonitor {
+  private socket: any;
 
   private host: string;
   private port: number;

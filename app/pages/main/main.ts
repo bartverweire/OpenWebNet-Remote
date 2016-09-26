@@ -28,15 +28,15 @@ export class MainPage {
     this.lights = <Subject<Group<Light>>><any> this.dataProvider.getLights();
     this.lights.subscribe(
       (data) => {
-        console.log("Main : lighsStream event received");
+        console.log("Home : lightsStream event received");
         console.log(data);
       },
       (error) => {
-        console.error("Main : lighsStream error received");
+        console.error("Home : lightsStream error received");
         console.error(error);
       },
       () => {
-        console.log("Main : lighsStream completed");
+        console.log("Home : lightsStream completed");
       }
     );
 
@@ -46,13 +46,13 @@ export class MainPage {
       console.log(data);
     });
 
-    this.groups = this.dataProvider.getGroups();
+    this.groups = this.dataProvider.getGroups(null, false);
     this.groups.subscribe((groups) => {
       console.log("Received groups");
       console.log(groups);
     })
   }
-
+  /*
   selectGroup(group: Group<OwnComponent>) {
     this.navCtrl.push(GroupDetailPage, {
       'group': group
@@ -62,7 +62,7 @@ export class MainPage {
   createGroup() {
     this.navCtrl.push(GroupDetailPage);
   }
-
+  
   selectComponent(component: OwnComponent) {
     console.log("Selected component " + JSON.stringify(component));
     this.navCtrl.push(ComponentDetailPage, {
@@ -76,5 +76,5 @@ export class MainPage {
       'type': type
     })
   }
-
+  */
 }

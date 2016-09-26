@@ -4,6 +4,11 @@
   See https://angular.io/docs/ts/latest/api/core/ComponentMetadata-class.html
   for more info on Angular 2 Components.
 -->
-<div>
-  {{text}}
-</div>
+<ion-item>
+  <ion-label>{{ component.name }}</ion-label>
+  <ion-checkbox
+      [checked]="group.contains(component)"
+      (ionChange)="toggleComponent($event, component)"
+      item-left>
+  </ion-checkbox>
+</ion-item>

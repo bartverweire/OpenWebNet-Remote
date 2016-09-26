@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { OwnComponent, Group, Light, Shutter } from '../../models/model';
 
 /*
   Generated class for the LightSelectionListItem component.
@@ -8,13 +9,38 @@ import { Component } from '@angular/core';
 */
 @Component({
   selector: 'light-selection-list-item',
-  templateUrl: 'build/components/light-selection-list-item/light-selection-list-item.html'
+  templateUrl: 'build/components/light-selection-list-item/light-selection-list-item.html',
+  inputs: ["group","component","selected"]
 })
 export class LightSelectionListItem {
-
-  text: string;
+  group: Group<OwnComponent>
+  component: OwnComponent;
+  selected: OwnComponent[];
 
   constructor() {
-    this.text = 'Hello World';
+  }
+
+  ngOnInit() {
+    console.log("LightSelectionListItem initialized");
+    console.log(this.selected);
+  }
+
+  toggleComponent(checkbox: any, selectedComponent: OwnComponent) {
+    let index = this.selected
+                  .map((component) => component.id)
+                  .indexOf(selectedComponent.id);
+
+    if (checkbox.checked) {
+      if (index < 0) {
+        this.selected.push(selectedComponent);
+      }
+    } else {
+      if (index >= 0) {
+        this.selected.splice(index, 1);
+      }
+    }
+
+    console.log("Selection after toggle");
+    console.log(this.selected.map((component) => component.name));
   }
 }

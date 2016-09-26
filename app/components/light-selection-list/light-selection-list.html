@@ -4,6 +4,11 @@
   See https://angular.io/docs/ts/latest/api/core/ComponentMetadata-class.html
   for more info on Angular 2 Components.
 -->
-<div>
-  {{text}}
-</div>
+<ion-list>
+  <light-selection-list-item
+      *ngFor="let component of (components | async)"
+      [group]="group"
+      [component]="component"
+      [selected]="selected">
+  </light-selection-list-item>
+</ion-list>

@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
-import { Subject } from 'rxjs';
-import { Shutter, Group } from '../../models/model';
-import { ShutterActionListItem } from '../shutter-action-list-item/shutter-action-list-item';
-import { ComponentDetailPage } from '../../pages/component-detail/component-detail';
+import { Subject, ReplaySubject } from 'rxjs';
+import { OwnComponent, Group, Light, Shutter } from '../../models/model';
+import { ShutterSelectionListItem } from '../shutter-selection-list-item/shutter-selection-list-item';
 
 /*
   Generated class for the ShutterSelectionList component.
@@ -14,46 +12,19 @@ import { ComponentDetailPage } from '../../pages/component-detail/component-deta
 @Component({
   selector: 'shutter-selection-list',
   templateUrl: 'build/components/shutter-selection-list/shutter-selection-list.html',
-  inputs: ["shutters"],
-  directives: [ShutterActionListItem]
+  directives: [ShutterSelectionListItem],
+  inputs: ["group","components","selected"]
 })
-export class ShutterSelectionList {
-  shutters: Subject<Group<Shutter>>;
-  status: boolean;
+export class ShutterSelectionList implements OnInit {
+  group: Group<OwnComponent>
+  components: Subject<OwnComponent[]>;
+  selected: OwnComponent[];
 
-  constructor(private navCtrl: NavController, private navParams: NavParams) {
-    console.log("Shutter action list constructor");
+  constructor() {
   }
 
   ngOnInit() {
-    this.shutters.forEach((group) => {
-      this.status = group.components.every((shutter): boolean => {
-        return shutter.status === 1;
-      })
-    })
-  }
-
-  add() {
-    console.log("Shutter group add ");
-  }
-
-  action(): any {
-    console.log("Shutter group action " + this.status);
-    let command = this.shutters.take(1)
-      .reduce((acc: string, group: Group<Shutter>): string => {
-        return acc + group.getCommand(this.status ? 1 : 0);
-      }, "")
-      .forEach((command) => {
-        console.log(command);
-      });
-
-
-  }
-
-  createShutter() {
-    console.log("Create new component of type Shutter ");
-    this.navCtrl.push(ComponentDetailPage, {
-      'type': Shutter.ComponentType
-    })
+    console.log("ShutterSelectionList initialized");
+    console.log(this.selected);
   }
 }

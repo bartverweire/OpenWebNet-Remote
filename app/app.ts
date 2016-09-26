@@ -7,6 +7,7 @@ import { ShuttersPage } from './pages/shutters/shutters';
 import { GroupsPage } from './pages/groups/groups';
 import { SettingsPage } from './pages/settings/settings';
 import { DataProvider } from './providers/data-provider/data-provider';
+import { OwnCommand } from './providers/own-command/own-command-mock';
 
 @Component({
   templateUrl: 'build/app.html'
@@ -26,6 +27,7 @@ class MyApp {
 
     // set our app's pages
     this.pages = [
+      { title: 'Home', component: MainPage },
       { title: 'Lights', component: LightsPage },
       { title: 'Shutters', component: ShuttersPage },
       { title: 'Groups', component: GroupsPage },

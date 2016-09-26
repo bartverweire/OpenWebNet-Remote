@@ -103,11 +103,6 @@ export class ComponentDetailPage implements OnInit {
     });
   }
 
-  /*
-  selectGroup(group: Group<OwnComponent>) {
-    console.log("Selected group " + JSON.stringify(group));
-  }
-  */
   saveComponent() {
     let values = this.componentForm.value;
     console.log(this.componentForm.value);
@@ -120,6 +115,10 @@ export class ComponentDetailPage implements OnInit {
     }
 
     this.dataProvider.saveComponent(component, this.selected);
+    this.navCtrl.pop();
+  }
+
+  cancel() {
     this.navCtrl.pop();
   }
 

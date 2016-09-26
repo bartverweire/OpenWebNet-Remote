@@ -3,13 +3,14 @@ import { OwnComponent } from './owncomponent';
 export class Group<T extends OwnComponent> {
   type: number;
   name: string;
+  defaultGroup: boolean;
   components: T[];
 
-  constructor(type: number, name: string) {
+  constructor(type: number, name: string, defaultGroup?: boolean) {
     this.name = name;
     this.type = type;
+    this.defaultGroup = defaultGroup;
     this.components = [];
-
   }
 
   getType<T extends OwnComponent>(t: {new(): T;  prototype: {type: T}}): T {
@@ -33,7 +34,7 @@ export class Group<T extends OwnComponent> {
   remove(component: T) {
     var index = this.components.map(x => x.id).indexOf(component.id, 0);
     if (index >= 0) {
-      this.components.splice(index, 0);
+      this.components.splice(index, 1);
     }
   }
 
@@ -67,6 +68,10 @@ export class Group<T extends OwnComponent> {
       .reduce((current: string, id: string): string => {
         return current + "*" + this.type + "*" + (commandType) + "*" + id + "##";
       }, "");
+  }
+
+  isDefault(): boolean {
+    return this.defaultGroup;
   }
 }
 

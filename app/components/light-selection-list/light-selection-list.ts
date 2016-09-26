@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Subject, ReplaySubject } from 'rxjs';
+import { OwnComponent, Group, Light, Shutter } from '../../models/model';
+import { LightSelectionListItem } from '../light-selection-list-item/light-selection-list-item';
 
 /*
   Generated class for the LightSelectionList component.
@@ -8,13 +11,20 @@ import { Component } from '@angular/core';
 */
 @Component({
   selector: 'light-selection-list',
-  templateUrl: 'build/components/light-selection-list/light-selection-list.html'
+  templateUrl: 'build/components/light-selection-list/light-selection-list.html',
+  directives: [LightSelectionListItem],
+  inputs: ["group","components","selected"]
 })
-export class LightSelectionList {
-
-  text: string;
+export class LightSelectionList implements OnInit {
+  group: Group<OwnComponent>
+  components: Subject<OwnComponent[]>;
+  selected: OwnComponent[];
 
   constructor() {
-    this.text = 'Hello World';
+  }
+
+  ngOnInit() {
+    console.log("LightSelectionList initialized");
+    console.log(this.selected);
   }
 }
