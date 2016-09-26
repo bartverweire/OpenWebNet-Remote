@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 import { Shutter } from '../../models/model';
 import { ComponentDetailPage } from '../../pages/component-detail/component-detail';
+import { OwnCommand } from '../../providers/own/own-command';
+
 /*
   Generated class for the ShutterActionListItem component.
 
@@ -16,7 +18,7 @@ import { ComponentDetailPage } from '../../pages/component-detail/component-deta
 export class ShutterActionListItem {
   shutter: Shutter;
 
-  constructor(private navCtrl: NavController, private navParams: NavParams) {
+  constructor(private navCtrl: NavController, private navParams: NavParams, private ownCommand: OwnCommand) {
     console.log("Shutter action list item constructor");
   }
 
@@ -28,6 +30,8 @@ export class ShutterActionListItem {
   }
 
   action(commandType: number) {
-    console.log("Shutter action " + this.shutter.getCommand(commandType));
+    let command = this.shutter.getCommand(commandType);
+    console.log("Shutter action " + command);
+    this.ownCommand.send(command);
   }
 }

@@ -7,7 +7,8 @@ import { ShuttersPage } from './pages/shutters/shutters';
 import { GroupsPage } from './pages/groups/groups';
 import { SettingsPage } from './pages/settings/settings';
 import { DataProvider } from './providers/data-provider/data-provider';
-import { OwnCommand } from './providers/own-command/own-command-mock';
+import { OwnCommand } from './providers/own/own-command';
+import { OwnMonitor } from './providers/own/own-monitor';
 
 @Component({
   templateUrl: 'build/app.html'
@@ -15,13 +16,14 @@ import { OwnCommand } from './providers/own-command/own-command-mock';
 class MyApp {
   @ViewChild(Nav) nav: Nav;
 
-  // make HelloIonicPage the root (or first) page
   rootPage: any = MainPage;
   pages: Array<{title: string, component: any}>;
 
   constructor(
     public platform: Platform,
-    public menu: MenuController
+    public menu: MenuController,
+    private ownCommand: OwnCommand,
+    private ownMonitor: OwnMonitor
   ) {
     this.initializeApp();
 
@@ -40,6 +42,8 @@ class MyApp {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
       StatusBar.styleDefault();
+      this.ownCommand.init("192.168.0.103",20000);
+      this.ownMonitor.init("192.168.0.103",20000);
     });
   }
 
@@ -52,5 +56,5 @@ class MyApp {
 }
 
 ionicBootstrap(MyApp,
-  [DataProvider]
+  [DataProvider, OwnCommand, OwnMonitor]
 );

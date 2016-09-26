@@ -4,7 +4,6 @@ import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 import { OwnSocket } from './own-socket';
-import { DataProvider } from '../data-provider/data-provider';
 
 declare var Socket;
 
@@ -16,11 +15,17 @@ declare var Socket;
 */
 @Injectable()
 export class OwnCommand extends OwnSocket {
+  private socket: any;
 
-  constructor(protected dataProvider: DataProvider) {
-    super(dataProvider);
+  private host: string;
+  private port: number;
+  private handshake: string[] = ["*99*0##"];
 
-    this.handshake = ["*99*0##"];
+  private commandStream: Subject<string>;
+  private responseStream: Subject<string>;
+
+  constructor() {
+    super();
 
     // create an observable to synchronize responses and new commands
     Observable.zip(
@@ -36,6 +41,17 @@ export class OwnCommand extends OwnSocket {
     });
 
     console.log("Observables created");
+  }
+
+  init(host: string, port: number) {
+    if (this.host && this.port > 0) {
+      console.error("Socket already initialized");
+    }
+
+    this.host       = host;
+    this.port       = port;
+
+    return this.responseStream;
   }
 
   send(command: string): void {
@@ -65,5 +81,23 @@ export class OwnCommand extends OwnSocket {
 
     console.log("Send - adding " + command + " to commandStream");
     this.commandStream.next(command);
+  }
+
+  arrayToString(data: Uint8Array) {
+    var CHUNK_SZ = 0x8000;
+    var c = [];
+    for (var i=0; i < data.length; i+=CHUNK_SZ) {
+      c.push(String.fromCharCode.apply(null, data.subarray(i, i+CHUNK_SZ)));
+    }
+    return c.join("");
+  }
+
+  stringToArray(dataString: string) {
+    let data = new Uint8Array(dataString.length);
+    for (var i = 0; i < data.length; i++) {
+      data[i] = dataString.charCodeAt(i);
+    }
+
+    return data;
   }
 }

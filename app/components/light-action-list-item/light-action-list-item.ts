@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 import { Light } from '../../models/model';
 import { ComponentDetailPage } from '../../pages/component-detail/component-detail';
+import { OwnCommand } from '../../providers/own/own-command';
 
 /*
   Generated class for the LightActionListItem component.
@@ -17,7 +18,7 @@ import { ComponentDetailPage } from '../../pages/component-detail/component-deta
 export class LightActionListItem {
   light: Light;
 
-  constructor(private navCtrl: NavController, private navParams: NavParams) {
+  constructor(private navCtrl: NavController, private navParams: NavParams, private ownCommand: OwnCommand) {
     console.log("Light action list item constructor");
   }
 
@@ -29,6 +30,8 @@ export class LightActionListItem {
   }
 
   action() {
-    console.log("Light action " + this.light.getCommand(this.light.status ? 1 : 0));
+    let command = this.light.getCommand(this.light.status ? 1 : 0);
+    console.log("Light action " + command);
+    this.ownCommand.send(command);
   }
 }
