@@ -61,10 +61,12 @@ export class DataProvider {
   }
 
   getLights(): Subject<Group<Light>> {
+    console.log("LightsStream subscribers " + this.lightsStream.observers.length);
     return this.lightsStream;
   }
 
   getShutters(): Subject<Group<Shutter>> {
+    console.log("ShuttersStream subscribers " + this.lightsStream.observers.length);
     return this.shuttersStream;
   }
 

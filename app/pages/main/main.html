@@ -11,6 +11,9 @@
       <ion-icon name="menu"></ion-icon>
     </button>
     <ion-title>Home</ion-title>
+    <ion-buttons end>
+      <ion-toggle [(ngModel)]="monitor" (click)="toggleMonitor()" right></ion-toggle>
+    </ion-buttons>
   </ion-navbar>
 
 </ion-header>

@@ -28,38 +28,27 @@ export class OwnMonitor extends OwnSocket {
 
     // checking if socket is open or opening
     if (this.socket.state === Socket.State.CLOSED || this.socket.state === Socket.State.CLOSING) {
-      console.log("Socket closed - adding handshake commands");
-      this.handshake.forEach((command) => {
-        console.log("==> adding handshake command " + command + " to commandStream");
-        this.commandStream.next(command);
-      });
-
+      
       this.socket.open(
         this.host,
         this.port,
         () => {
-          console.log("Socket open message received");
-          this.responseStream.next("open");
+          console.log("Monitor Socket open message received");
+
+          this.handshake.forEach((command) => {
+            console.log("==> adding handshake command " + command + " to commandStream");
+            this.socket.write(this.stringToArray(command));
+          });
         },
         (error) => {
-          console.error("Socket open error");
+          console.error("Monitor Socket open error");
           this.responseStream.error("failed to open connection");
         }
       )
     }
+  }
 
-    // create an observable to synchronize responses and new commands
-    Observable.zip(
-      this.responseStream,
-      this.commandStream,
-      (response, command) => {
-        console.log("Zipped - response " + response + ", next command " + command);
-        return command;
-      }
-    )
-    .take(this.handshake.length)
-    .forEach((command) => {
-      this.socket.write(this.stringToArray(command));
-    });
+  onClose() {
+    this.start();
   }
 }

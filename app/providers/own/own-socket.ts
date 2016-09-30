@@ -4,6 +4,7 @@ import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 import { DataProvider } from '../data-provider/data-provider';
+import { OwnResponse } from '../../models/model';
 
 declare var Socket;
 
@@ -33,11 +34,12 @@ export class OwnSocket {
 
     this.socket.onError = (error) => {
       console.log("Socket error: " + error);
-      this.responseStream.error(error);
+      //this.responseStream.error(error);
     }
 
     this.socket.onClose = (hasError) => {
       console.log("Socket closed " + (hasError ? "with" : "without") + " error");
+      this.onClose();
     }
 
     // create logging subscribers
@@ -58,8 +60,17 @@ export class OwnSocket {
 
     this.host       = host;
     this.port       = port;
+  }
 
-    return this.responseStream;
+  onClose() {
+
+  }
+
+  listen(): Observable<string> {
+    console.log("ResponseStream - " + this.responseStream.observers.length);
+    return this.responseStream.map((resp: string): string => {
+      return resp;
+    });
   }
 
   arrayToString(data: Uint8Array) {
@@ -78,9 +89,5 @@ export class OwnSocket {
     }
 
     return data;
-  }
-
-  parseResponse(response: string) {
-
   }
 }

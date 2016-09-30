@@ -10,10 +10,10 @@ export abstract class OwnComponent {
     this.objectId = OwnComponent.objectIdGenerator++;
   }
 
-  static create(type: number): OwnComponent {
+  static create(type: number, id?: number): OwnComponent {
     switch (type) {
-      case Light.ComponentType: return new Light(0, "New Light", false);
-      case Shutter.ComponentType: return new Shutter(0, "New Shutter");
+      case Light.ComponentType: return new Light(id || 0, "Light " + id || "", false);
+      case Shutter.ComponentType: return new Shutter(id || 0, "Shutter " + id || "");
     }
 
     return null;

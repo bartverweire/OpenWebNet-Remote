@@ -1,0 +1,31 @@
+<!--
+  Generated template for the DiscoveryPage page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Discovery</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-list>
+    <ion-item>
+      <button (click)="discover()">Start Discovery</button>
+    </ion-item>
+    <ion-item>
+      Lights : {{ (lights | async)?.components.length }}
+    </ion-item>
+    <ion-item>
+      Shutters : {{ (lights | async)?.components.length }}
+    </ion-item>
+  </ion-list>
+</ion-content>

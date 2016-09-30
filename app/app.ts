@@ -6,9 +6,11 @@ import { LightsPage } from './pages/lights/lights';
 import { ShuttersPage } from './pages/shutters/shutters';
 import { GroupsPage } from './pages/groups/groups';
 import { SettingsPage } from './pages/settings/settings';
+import { DiscoveryPage } from './pages/discovery/discovery';
 import { DataProvider } from './providers/data-provider/data-provider';
 import { OwnCommand } from './providers/own/own-command';
 import { OwnMonitor } from './providers/own/own-monitor';
+import { Subject } from 'rxjs';
 
 @Component({
   templateUrl: 'build/app.html'
@@ -33,7 +35,8 @@ class MyApp {
       { title: 'Lights', component: LightsPage },
       { title: 'Shutters', component: ShuttersPage },
       { title: 'Groups', component: GroupsPage },
-      { title: 'Settings', component: SettingsPage }
+      { title: 'Settings', component: SettingsPage },
+      { title: 'Discovery', component: DiscoveryPage }
     ];
   }
 

@@ -13,7 +13,7 @@ import { OwnSocket } from './own-socket-mock';
   for more info on providers and Angular 2 DI.
 */
 @Injectable()
-export class ownMonitor extends OwnSocket {
+export class OwnMonitor extends OwnSocket {
 
   constructor() {
     super();
@@ -41,5 +41,9 @@ export class ownMonitor extends OwnSocket {
 
       this.state = "open";
     }
+  }
+
+  listen(): Subject<string> {
+    return this.responseStream;
   }
 }
