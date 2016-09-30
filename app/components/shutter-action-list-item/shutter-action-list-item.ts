@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, NgZone, OnInit, OnDestroy } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
-import { Shutter } from '../../models/model';
+import { Shutter, Group } from '../../models/model';
 import { ComponentDetailPage } from '../../pages/component-detail/component-detail';
 import { OwnCommand } from '../../providers/own/own-command';
+import { DataProvider } from '../../providers/data-provider/data-provider';
+import { Observable, Subscription } from 'rxjs';
 
 /*
   Generated class for the ShutterActionListItem component.
@@ -15,11 +17,33 @@ import { OwnCommand } from '../../providers/own/own-command';
   templateUrl: 'build/components/shutter-action-list-item/shutter-action-list-item.html',
   inputs: ["shutter"]
 })
-export class ShutterActionListItem {
+export class ShutterActionListItem implements OnInit, OnDestroy {
   shutter: Shutter;
 
-  constructor(private navCtrl: NavController, private navParams: NavParams, private ownCommand: OwnCommand) {
+  shutters: Observable<Group<Shutter>>;
+  shuttersSubscription: Subscription;
+
+
+  constructor(private navCtrl: NavController,
+              private navParams: NavParams,
+              private zone: NgZone,
+              private ownCommand: OwnCommand,
+              private dataProvider: DataProvider) {
     console.log("Shutter action list item constructor");
+  }
+
+  ngOnInit() {
+    this.shutters = this.dataProvider.getShutters();
+    this.shuttersSubscription = this.shutters.subscribe((group) => {
+      console.log("ShutterActionListItem: received updated shutters group " + group.components.length);
+      this.zone.run(() => {
+        console.log('ShutterActionListItem: refresh');
+      });
+    });
+  }
+
+  ngOnDestroy() {
+    !this.shuttersSubscription.isUnsubscribed && this.shuttersSubscription.unsubscribe();
   }
 
   select() {
@@ -29,9 +53,14 @@ export class ShutterActionListItem {
     })
   }
 
-  action(commandType: number) {
-    let command = this.shutter.getCommand(commandType);
+  action(status: number) {
+    this.shutter.status = status;
+
+    console.log("ShutterActionList: action " + this.shutter.status);
+
+    let command = this.shutter.getCommand(this.shutter.status);
     console.log("Shutter action " + command);
     this.ownCommand.send(command);
+    this.dataProvider.refresh();
   }
 }

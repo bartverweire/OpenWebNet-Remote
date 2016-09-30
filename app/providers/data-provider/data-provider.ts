@@ -41,37 +41,48 @@ export class DataProvider {
     this.groupsStream   = new ReplaySubject<Group<OwnComponent>[]>(1);
     this.groupStream    = new ReplaySubject<Group<OwnComponent>>(1);
 
+    console.log("DataProvider: LIGHTSSTREAM subscription");
+    console.log("DataProvider: LightsStream subscribers before " + ((this.lightsStream && this.lightsStream.observers.length) || 0));
     this.lightsStream.subscribe(
       (data) => {
-        console.log("New lightsStream event");
+        console.log("DataProvider: New lightsStream event");
         console.log(data);
       },
       (error) => {
-        console.error("Lightsstream error");
+        console.error("DataProvider: Lightsstream error");
       },
       () => {
-        console.log("Lightsstream completed");
+        console.log("DataProvider: Lightsstream completed");
       }
     )
+    console.log("DataProvider: LightsStream subscribers after " + ((this.lightsStream && this.lightsStream.observers.length) || 0));
     this.loadData();
+
+    console.info("DataProvider: constructed");
   }
 
   getComponent(id: number): OwnComponent {
     return this.allComponents.get(id);
   }
 
-  getLights(): Subject<Group<Light>> {
-    console.log("LightsStream subscribers " + this.lightsStream.observers.length);
-    return this.lightsStream;
+  getLights(): Observable<Group<Light>> {
+    console.log("DataProvider: LightsStream subscribers before " + ((this.lightsStream && this.lightsStream.observers.length) || 0));
+
+    let obs: Observable<Group<Light>> = Observable.from(this.lightsStream);
+
+    console.log("DataProvider: LightsStream subscribers after " + ((this.lightsStream && this.lightsStream.observers.length) || 0));
+
+    return obs;
   }
 
-  getShutters(): Subject<Group<Shutter>> {
-    console.log("ShuttersStream subscribers " + this.lightsStream.observers.length);
-    return this.shuttersStream;
+  getShutters(): Observable<Group<Shutter>> {
+    console.log("DataProvider: ShuttersStream subscribers " + ((this.shuttersStream && this.shuttersStream.observers.length) || 0));
+
+    return Observable.from(this.shuttersStream);
   }
 
-  getGroups(type?: number, includeDefaultGroups? : boolean): Subject<Group<OwnComponent>[]> {
-    return <Subject<Group<OwnComponent>[]>> this.groupsStream
+  getGroups(type?: number, includeDefaultGroups? : boolean): Observable<Group<OwnComponent>[]> {
+    return <Observable<Group<OwnComponent>[]>> this.groupsStream
             .map((groups) => {
               if (!type) {
                 return groups
@@ -171,9 +182,7 @@ export class DataProvider {
       });
     }
 
-    this.lightsStream.next(this.lights);
-    this.shuttersStream.next(this.shutters);
-    this.groupsStream.next(this.groups);
+    this.refresh();
   }
 
   saveGroup(group: Group<OwnComponent>) {
@@ -183,6 +192,10 @@ export class DataProvider {
       this.allGroups.set(group.name, group);
     }
 
+    this.refresh();
+  }
+
+  refresh() {
     this.lightsStream.next(this.lights);
     this.shuttersStream.next(this.shutters);
     this.groupsStream.next(this.groups);
@@ -204,6 +217,14 @@ export class DataProvider {
           {
             id: 32,
             name: 'Bureau Kast'
+          },
+          {
+            id: 35,
+            name: 'Living Salon'
+          },
+          {
+            id: 36,
+            name: 'Living Eetkamer'
           }
         ]
       }
@@ -224,6 +245,14 @@ export class DataProvider {
           {
             id: 82,
             name: 'Bureau Zij'
+          },
+          {
+            id: 83,
+            name: 'Living Salon'
+          },
+          {
+            id: 84,
+            name: 'Living Eetkamer'
           }
         ]
       }
@@ -251,6 +280,21 @@ export class DataProvider {
             name: "Bureau",
             type: 1,
             defaultGroup: false
+          },
+          {
+            name: "Living",
+            type: 1,
+            defaultGroup: false
+          },
+          {
+            name: "Shutters Zij",
+            type: 2,
+            defaultGroup: false
+          },
+          {
+            name: "Shutters Voor",
+            type: 2,
+            defaultGroup: false
           }
         ]
       }
@@ -275,6 +319,18 @@ export class DataProvider {
           {
             name: "Bureau",
             members: [31, 32]
+          },
+          {
+            name: "Living",
+            members: [35, 36]
+          },
+          {
+            name: "Shutters Zij",
+            members: [82, 83, 84]
+          },
+          {
+            name: "Shutters Voor",
+            members: [81]
           }
         ]
       }

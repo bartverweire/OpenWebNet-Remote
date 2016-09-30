@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
-import { Subject } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { OwnComponent, Light, Shutter, Group } from '../../models/model';
 import { GroupActionListItem } from '../group-action-list-item/group-action-list-item';
 import { GroupDetailPage } from '../../pages/group-detail/group-detail';
@@ -18,7 +18,8 @@ import { GroupDetailPage } from '../../pages/group-detail/group-detail';
   directives: [GroupActionListItem]
 })
 export class GroupActionList implements OnInit {
-  groups: Subject<Group<OwnComponent>[]>;
+  groups: Observable<Group<OwnComponent>[]>;
+
   status: number;
 
   constructor(private navCtrl: NavController, private navParams: NavParams) {
@@ -26,7 +27,6 @@ export class GroupActionList implements OnInit {
   }
 
   ngOnInit() {
-
   }
 
   add() {

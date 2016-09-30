@@ -21,20 +21,22 @@ import { GroupActionList } from '../../components/group-action-list/group-action
   directives: [LightActionList, ShutterActionList, GroupActionList]
 })
 export class MainPage implements OnInit, OnDestroy {
-  lights: Subject<Group<Light>>;
+  lights: Observable<Group<Light>>;
   lightsSubscription: Subscription;
-  shutters: Subject<Group<Shutter>>;
+  shutters: Observable<Group<Shutter>>;
   shuttersSubscription: Subscription;
-  groups: Subject<Group<OwnComponent>[]>;
-  monitor: boolean;
-  monitorStream: Observable<string>;
-  monitorSubscription: Subscription;
+  groups: Observable<Group<OwnComponent>[]>;
+  groupsSubscription: Subscription;
+
+  monitoring: boolean;
 
   constructor(private navCtrl: NavController,
               private navParams: NavParams,
               private dataProvider: DataProvider,
               private ownMonitor: OwnMonitor ) {
-    this.lights = <Subject<Group<Light>>><any> this.dataProvider.getLights();
+
+    console.log("Home: LIGHTSSTREAM SUBSCRIPTION ");
+    this.lights = this.dataProvider.getLights();
     this.lightsSubscription = this.lights.subscribe(
       (data) => {
         console.log("Home : lightsStream event received");
@@ -51,17 +53,19 @@ export class MainPage implements OnInit, OnDestroy {
 
     this.shutters = <Subject<Group<Shutter>>><any> this.dataProvider.getShutters();
     this.shuttersSubscription = this.shutters.subscribe((data) => {
-      console.log("Received shutters");
+      console.log("Home: Received shutters");
       console.log(data);
     });
 
     this.groups = this.dataProvider.getGroups(null, false);
-    this.groups.subscribe((groups) => {
-      console.log("Received groups");
+    this.groupsSubscription = this.groups.subscribe((groups) => {
+      console.log("Home: Received groups");
       console.log(groups);
     });
 
-    console.log("Home - constructed");
+    this.monitoring = ownMonitor.monitoring;
+
+    console.log("Home: constructed");
   }
 
   ngOnInit() {
@@ -69,22 +73,16 @@ export class MainPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    !this.lightsSubscription.isUnsubscribed && this.lightsSubscription.unsubscribe();
-    !this.shuttersSubscription.isUnsubscribed && this.shuttersSubscription.unsubscribe();
+    this.lightsSubscription && !this.lightsSubscription.isUnsubscribed && this.lightsSubscription.unsubscribe();
+    this.shuttersSubscription && !this.shuttersSubscription.isUnsubscribed && this.shuttersSubscription.unsubscribe();
+    this.groupsSubscription && !this.groupsSubscription.isUnsubscribed && this.groupsSubscription.unsubscribe();
   }
 
   toggleMonitor() {
-    if (this.monitor) {
+    if (this.monitoring) {
       this.ownMonitor.start();
-      this.monitorStream = this.ownMonitor.listen();
-      this.monitorSubscription = this.monitorStream
-        .subscribe((resp) => {
-          console.log("MonitorStream - " + resp);
-        });
     } else {
-      if (this.monitorSubscription) {
-        this.monitorSubscription.unsubscribe();
-      }
+      this.ownMonitor.stop();
     }
   }
 }

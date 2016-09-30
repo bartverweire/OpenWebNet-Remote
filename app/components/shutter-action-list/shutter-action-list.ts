@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
-import { Subject } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { Shutter, Group } from '../../models/model';
 import { ShutterActionListItem } from '../shutter-action-list-item/shutter-action-list-item';
 import { ComponentDetailPage } from '../../pages/component-detail/component-detail';
+import { OwnCommand } from '../../providers/own/own-command';
+import { DataProvider } from '../../providers/data-provider/data-provider';
 
 /*
   Generated class for the ShutterSelectionList component.
@@ -18,38 +20,55 @@ import { ComponentDetailPage } from '../../pages/component-detail/component-deta
   directives: [ShutterActionListItem]
 })
 export class ShutterActionList {
-  shutters: Subject<Group<Shutter>>;
+  shutters: Observable<Group<Shutter>>;
+  shuttersSubscription: Subscription;
   status: number;
 
-  constructor(private navCtrl: NavController, private navParams: NavParams) {
-    console.log("Shutter action list constructor");
+  constructor(private navCtrl: NavController,
+              private navParams: NavParams,
+              private ownCommand: OwnCommand,
+              private dataProvider: DataProvider) {
+    console.log("ShutterActionList: constructed");
   }
 
   ngOnInit() {
-    this.shutters.forEach((group) => {
-      this.status = 0;
+    console.log("LightActionList: subscribing to calculate status");
+    this.shuttersSubscription = this.shutters.subscribe((group) => {
+      this.status = group.components
+        .map((shutter) => {
+          return shutter.status;
+        })
+        .reduce((prev, status): number => {
+          // return stopped status if not all are equal
+          return status === prev ? prev : 0;
+        }, null);
     })
   }
 
-  add() {
-    console.log("Shutter group add ");
+  ngOnDestroy() {
+    this.shuttersSubscription && !this.shuttersSubscription.isUnsubscribed && this.shuttersSubscription.unsubscribe();
   }
 
-  action(commandType: number): any {
-    console.log("Shutter group action " + this.status);
-    let command = this.shutters.take(1)
-      .reduce((acc: string, group: Group<Shutter>): string => {
-        return acc + group.getCommand(commandType);
-      }, "")
-      .forEach((command) => {
+  action(status: number): any {
+    this.status = status;
+
+    console.log("ShutterActionList: action " + this.status);
+
+    this.shutters.take(1)
+      .forEach((group) => {
+        let command: string = group.getCommand(this.status);
+        group.components.forEach((component) => {
+          component.status = this.status;
+        })
+
         console.log(command);
+        this.ownCommand.send(command);
+        this.dataProvider.refresh();
       });
-
-
   }
 
   createShutter() {
-    console.log("Create new component of type Shutter ");
+    console.log("ShutterActionList: Create new component of type Shutter ");
     this.navCtrl.push(ComponentDetailPage, {
       'type': Shutter.ComponentType
     })

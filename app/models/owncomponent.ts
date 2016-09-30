@@ -8,6 +8,7 @@ export abstract class OwnComponent {
 
   constructor(public id: number, public name: string, public type: number) {
     this.objectId = OwnComponent.objectIdGenerator++;
+    this.status = 0;
   }
 
   static create(type: number, id?: number): OwnComponent {

@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
-import { Subject } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { Light, Group } from '../../models/model';
 import { LightActionListItem } from '../light-action-list-item/light-action-list-item';
 import { ComponentDetailPage } from '../../pages/component-detail/component-detail';
+import { OwnCommand } from '../../providers/own/own-command';
+import { DataProvider } from '../../providers/data-provider/data-provider';
 
 /*
   Generated class for the LightActionList component.
@@ -17,41 +19,50 @@ import { ComponentDetailPage } from '../../pages/component-detail/component-deta
   inputs: ["lights"],
   directives: [LightActionListItem]
 })
-export class LightActionList implements OnInit {
-  lights: Subject<Group<Light>>;
+export class LightActionList implements OnInit, OnDestroy {
+  lights: Observable<Group<Light>>;
+  lightsSubscription: Subscription;
+
   status: boolean;
 
-  constructor(private navCtrl: NavController, private navParams: NavParams) {
-    console.log("Light action list constructor");
+  constructor(private navCtrl: NavController,
+              private navParams: NavParams,
+              private ownCommand: OwnCommand,
+              private dataProvider: DataProvider) {
+    console.log("LightActionList: constructed");
   }
 
   ngOnInit() {
-    this.lights.forEach((group) => {
+    console.log("LightActionList: subscribing to calculate status");
+    this.lightsSubscription = this.lights.subscribe((group) => {
       this.status = group.components.every((light): boolean => {
         return light.status === 1;
       })
     })
   }
 
-  add() {
-    console.log("Light group add ");
+  ngOnDestroy() {
+    this.lightsSubscription && !this.lightsSubscription.isUnsubscribed && this.lightsSubscription.unsubscribe();
   }
 
   action(): any {
-    console.log("Light group action " + this.status);
-    let command = this.lights.take(1)
-      .reduce((acc: string, group: Group<Light>): string => {
-        return acc + group.getCommand(this.status ? 1 : 0);
-      }, "")
-      .forEach((command) => {
+    console.log("LightActionList: action " + this.status);
+
+    this.lights.take(1)
+      .forEach((group) => {
+        let command: string = group.getCommand(this.status ? 1 : 0);
+        group.components.forEach((component) => {
+          component.status = this.status ? 1 : 0;
+        })
+
         console.log(command);
+        this.ownCommand.send(command);
+        this.dataProvider.refresh();
       });
-
-
   }
 
   createLight() {
-    console.log("Create new component of type Light ");
+    console.log("LightActionList: Create new component of type Light ");
     this.navCtrl.push(ComponentDetailPage, {
       'type': Light.ComponentType
     })

@@ -7,5 +7,5 @@
 <ion-item>
   <ion-icon name="bulb" item-left></ion-icon>
   <span (click)="select(light)" item-content>{{ light.name }}</span>
-  <ion-toggle [(ngModel)]="light.status" (click)="action()" item-right class="largeicon"></ion-toggle>
+  <ion-toggle [(ngModel)]="status" (click)="action()" item-right class="largeicon"></ion-toggle>
 </ion-item>

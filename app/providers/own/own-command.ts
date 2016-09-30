@@ -27,7 +27,7 @@ export class OwnCommand extends OwnSocket {
       this.responseStream,
       this.commandStream,
       (response, command) => {
-        console.log("Zipped - response " + response + ", next command " + command);
+        console.log("OwnCommand: Zipped - response " + response + ", next command " + command);
         return command;
       }
     )
@@ -35,17 +35,22 @@ export class OwnCommand extends OwnSocket {
       this.socket.write(this.stringToArray(command));
     });
 
-    console.log("Observables created");
+    // subscribe to the response stream, and parse the response if it arrives
+    this.responseSubscription = this.getResponseStream().subscribe((data) => {
+      this.parseResponse(data);
+    });
+
+    console.log("OwnCommand: constructed");
   }
 
   send(command: string): void {
-    console.log("Send - command received ");
+    console.log("OwnCommand: Send - command received ");
 
     // checking if socket is open or opening
     if (this.socket.state === Socket.State.CLOSED || this.socket.state === Socket.State.CLOSING) {
-      console.log("Socket closed - adding handshake commands");
+      console.log("OwnCommand: Socket closed - adding handshake commands");
       this.handshake.forEach((command) => {
-        console.log("==> adding handshake command " + command + " to commandStream");
+        console.log("OwnCommand: ==> adding handshake command " + command + " to commandStream");
         this.commandStream.next(command);
       });
 
@@ -53,17 +58,17 @@ export class OwnCommand extends OwnSocket {
         this.host,
         this.port,
         () => {
-          console.log("Socket open message received");
+          console.log("OwnCommand: Socket open message received");
           this.responseStream.next("open");
         },
         (error) => {
-          console.error("Socket open error");
+          console.error("OwnCommand: Socket open error");
           this.responseStream.error("failed to open connection");
         }
       )
     }
 
-    console.log("Send - adding " + command + " to commandStream");
+    console.log("OwnCommand: Send - adding " + command + " to commandStream");
     this.commandStream.next(command);
   }
 }

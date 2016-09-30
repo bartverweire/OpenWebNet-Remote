@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
-import { Subject } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { DataProvider } from '../../providers/data-provider/data-provider';
 import { OwnComponent, Light, Group } from '../../models/model';
 import { ComponentDetailPage } from '../component-detail/component-detail';
 import { LightActionList } from '../../components/light-action-list/light-action-list';
+import { OwnMonitor } from '../../providers/own/own-monitor';
 
 /*
   Generated class for the LightsPage page.
@@ -16,12 +17,18 @@ import { LightActionList } from '../../components/light-action-list/light-action
   templateUrl: 'build/pages/lights/lights.html',
   directives: [LightActionList]
 })
-export class LightsPage {
-  lights: Subject<Group<Light>>;
+export class LightsPage implements OnInit, OnDestroy {
+  lights: Observable<Group<Light>>;
+  lightsSubscription: Subscription;
 
-  constructor(private navCtrl: NavController, private navParams: NavParams, private dataProvider: DataProvider) {
-    this.lights = <Subject<Group<Light>>><any> this.dataProvider.getLights();
-    this.lights.subscribe(
+  monitoring: boolean;
+
+  constructor(private navCtrl: NavController,
+              private navParams: NavParams,
+              private dataProvider: DataProvider,
+              private ownMonitor: OwnMonitor ) {
+    this.lights = this.dataProvider.getLights();
+    this.lightsSubscription = this.lights.subscribe(
       (data) => {
         console.log("LightsPage : lightsStream event received");
         console.log(data);
@@ -34,20 +41,23 @@ export class LightsPage {
         console.log("LightsPage : lightsStream completed");
       }
     );
-  }
-  /*
-  selectComponent(component: OwnComponent) {
-    console.log("Selected component " + JSON.stringify(component));
-    this.navCtrl.push(ComponentDetailPage, {
-      'component': component
-    })
+
+    this.monitoring = ownMonitor.monitoring;
   }
 
-  createComponent(type: number) {
-    console.log("Create new component of type " + type);
-    this.navCtrl.push(ComponentDetailPage, {
-      'type': type
-    })
+  ngOnInit() {
+
   }
-  */
+
+  ngOnDestroy() {
+    this.lightsSubscription && !this.lightsSubscription.isUnsubscribed && this.lightsSubscription.unsubscribe();
+  }
+
+  toggleMonitor() {
+    if (this.monitoring) {
+      this.ownMonitor.start();
+    } else {
+      this.ownMonitor.stop();
+    }
+  }
 }

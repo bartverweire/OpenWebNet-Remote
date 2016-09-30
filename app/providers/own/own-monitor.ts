@@ -16,6 +16,7 @@ declare var Socket;
 */
 @Injectable()
 export class OwnMonitor extends OwnSocket {
+  monitoring: boolean = false;
 
   constructor(protected dataProvider: DataProvider) {
     super(dataProvider);
@@ -24,31 +25,47 @@ export class OwnMonitor extends OwnSocket {
   }
 
   start() {
-    console.log("Send - command received ");
+    this.monitoring = true;
+
+    console.log("OwnMonitor: Send - command received ");
 
     // checking if socket is open or opening
     if (this.socket.state === Socket.State.CLOSED || this.socket.state === Socket.State.CLOSING) {
-      
+
       this.socket.open(
         this.host,
         this.port,
         () => {
-          console.log("Monitor Socket open message received");
+          console.log("OwnMonitor: open message received");
 
           this.handshake.forEach((command) => {
-            console.log("==> adding handshake command " + command + " to commandStream");
+            console.log("OwnMonitor: ==> adding handshake command " + command + " to commandStream");
             this.socket.write(this.stringToArray(command));
           });
         },
         (error) => {
-          console.error("Monitor Socket open error");
+          console.error("OwnMonitor: open error");
           this.responseStream.error("failed to open connection");
         }
       )
     }
+
+    console.log("OwnMonitor: start listening to response stream ");
+
+    this.responseSubscription = this.getResponseStream().subscribe((data) => {
+      this.parseResponse(data);
+    });
+  }
+
+  stop() {
+    this.responseSubscription && !this.responseSubscription.isUnsubscribed && this.responseSubscription.unsubscribe();
+
+    this.monitoring = false;
   }
 
   onClose() {
-    this.start();
+    if (this.monitoring) {
+      this.start();
+    }
   }
 }

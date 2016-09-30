@@ -10,12 +10,14 @@
     <button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>groups</ion-title>
+    <ion-title>Groups</ion-title>
+    <ion-buttons end>
+      <ion-toggle [(ngModel)]="monitoring" (click)="toggleMonitor()" right></ion-toggle>
+    </ion-buttons>
   </ion-navbar>
 
 </ion-header>
 
-
 <ion-content padding>
-
+  <group-action-list [groups]="groups"></group-action-list>
 </ion-content>

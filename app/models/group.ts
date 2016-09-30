@@ -19,13 +19,7 @@ export class Group<T extends OwnComponent> {
 
   add(component: T) {
     var index = this.components.map(x => x.id).indexOf(component.id, 0);
-    /*
-    if (index >= 0) {
-      this.components[index] = component;
-    } else {
-      this.components.push(component);
-    }
-    */
+
     if (index < 0) {
       this.components.push(component);
     }
@@ -40,6 +34,26 @@ export class Group<T extends OwnComponent> {
 
   set(components: T[]) {
     this.components = components;
+  }
+
+  getStatus(): any {
+    if (this.type === 1) {
+      return this.components.every((light): boolean => {
+        return light.status === 1;
+      });
+    }
+
+    if (this.type === 2) {
+      return this.components
+        .map((shutter) => {
+          return shutter.status;
+        })
+        .reduce((prev, status): number => {
+          // return stopped status if not all are equal
+          return status === prev ? prev : 0;
+        }, null);
+    }
+
   }
 
   setStatus(status: number) {
