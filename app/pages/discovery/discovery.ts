@@ -23,13 +23,22 @@ export class DiscoveryPage implements OnInit, OnDestroy {
   shutters: Observable<Group<Shutter>>;
   shuttersSubscription: Subscription;
 
+  lightIds: Array<number> = [];
+  shutterIds: Array<number> = [];
+
   constructor(private navCtrl: NavController,
               private zone:NgZone,
               private ownCommand: OwnCommand,
               private dataProvider: DataProvider) {
     console.log("Discovery:  constructed");
 
-    this.ids = new Array<number>(99).fill(0);
+    for (var i = 11; i < 65; i++) {
+      this.lightIds.push(i);
+    }
+
+    for (var i = 71; i < 90; i++) {
+      this.shutterIds.push(i);
+    }
   }
 
   ngOnInit() {
@@ -57,14 +66,14 @@ export class DiscoveryPage implements OnInit, OnDestroy {
 
   discover() {
     console.log("Discovery: discovering lights");
-    this.ids.forEach((value, index) => {
-      let command = "*#1*" + (index + 1) + "##";
+    this.lightIds.forEach((value) => {
+      let command = "*#1*" + (value) + "##";
 
       this.ownCommand.send(command);
     });
     console.log("Discovery: discovering shutters");
-    this.ids.forEach((value, index) => {
-      let command = "*#2*" + (index + 1) + "##";
+    this.shutterIds.forEach((value) => {
+      let command = "*#2*" + (value) + "##";
 
       this.ownCommand.send(command);
     });
